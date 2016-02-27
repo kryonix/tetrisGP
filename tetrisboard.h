@@ -18,7 +18,7 @@ public:
 
    TetrisShape &shapeAt(int x, int y) { return mem->board[(y * BoardWidth) + x]; }
 
-   enum { BoardWidth = 10, BoardHeight = 22 };
+   enum { BoardWidth = 10, BoardHeight = 22, Fields = BoardWidth*BoardHeight };
 
    bool moveLeft();
    bool moveRight();

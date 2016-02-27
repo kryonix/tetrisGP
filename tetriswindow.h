@@ -16,7 +16,7 @@
 
 #include "QPCTimer.h"
 
-#include <windows.h>
+//#include <windows.h>
 
 #include "tetriski.h"
 

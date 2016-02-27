@@ -122,7 +122,13 @@ void TetrisWindow::TimerEvent()
       QPCTimer perfTimer;
       perfTimer.start();
 #endif
-      std::pair<int, int> zug = mKi.onePiece(&ui->board->board);//mKi.onePiece(&ui->board->board);
+
+      for(int i = 0; i < ui->board->board.BoardHeight-maxHeight(&ui->board->board)-5; i++)
+      {
+         ui->board->board.oneLineDown();
+      }
+
+      std::pair<int, int> zug = mKi.twoPiece(&ui->board->board);//mKi.onePiece(&ui->board->board);
 
 #if BENCH == 1
       qDebug() << perfTimer.elapsedMs() << "ms";
@@ -151,6 +157,42 @@ void TetrisWindow::setValues()
    setScore(ui->board->board.getScore());
    setLevel(ui->board->board.getLevel());
    setLinesRemoved(ui->board->board.getLinesRemoved());
+
+#if 1
+   //Output the Tetrisboard feature values on GUI
+   std::vector<double> mValues;
+   mValues.resize(12);
+
+   std::bitset<TetrisBoard::BoardHeight*TetrisBoard::BoardWidth> boardSet;
+
+   for(int x = 0; x < TetrisBoard::BoardWidth; ++x)
+   {
+       for(int y = 0; y < TetrisBoard::BoardHeight; ++y)
+       {
+           boardSet[(y*TetrisBoard::BoardWidth)+x] = ui->board->board.shapeAt(x,y) == NoShape ? true:false;
+       }
+   }
+
+   std::vector<double> weights = mKi.getWeights();
+
+   mValues[0] = weightedHeight(&boardSet, weights.at(0));
+   mValues[1] = holes(&boardSet);// * weights.at(1);
+   mValues[2] = blockades(&boardSet) * weights.at(2);
+   mValues[3] = columnSpace(&boardSet) * weights.at(3);
+   mValues[4] = touchFloor(&boardSet) * weights.at(4);
+   mValues[5] = touchWall(&boardSet) * weights.at(5);
+   mValues[6] = touchPiece(&boardSet) * weights.at(6);
+   mValues[7] = rowSpace(&boardSet) * weights.at(7);
+   mValues[8] = blocks(&boardSet) * weights.at(8);
+   mValues[9] = 0;
+   mValues[10] = well(&boardSet);// * weights.at(10);
+   mValues[11] = 0;
+
+   for(int i = 0; i < mValues.size(); i++)
+   {
+      ui->tableWidget->item(i, 1)->setText(QString::number(mValues.at(i)));
+   }
+#endif
 }
 
 void TetrisWindow::setScore(int arg)

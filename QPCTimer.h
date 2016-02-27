@@ -26,7 +26,26 @@ public:
 };
 
 #else
-#error QPCTimer nur für Microsoft Windows verfügbar!
+#include <QElapsedTimer>
+
+class QPCTimer
+{
+private:
+   QElapsedTimer timer;
+
+public:
+   void start()
+   {
+       timer.start();
+   }
+
+   double elapsedMs()
+   {
+       return timer.elapsed();
+   }
+};
+
+//#error QPCTimer nur für Microsoft Windows verfügbar!
 #endif //win32
 #endif //QPCTIMER_H
 

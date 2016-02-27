@@ -15,7 +15,9 @@
 #include <QTime>
 
 #include <algorithm>
-#include <tr1/memory>
+//#include <tr1/memory>
+
+#include <memory>
 
 #include <vector>
 
@@ -32,7 +34,8 @@
 #include <QFutureWatcher>
 #include <QFuture>
 
-#include <boost/bind.hpp>
+//#include <boost/bind.hpp>
+#include <functional> //for std::bind
 
 class TetrisBoard;
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "random.h"
+#include <cmath>
 
 class Individuum
 {
@@ -21,6 +22,19 @@ public:
    bool operator<(const Individuum& other) const
    {
       return fitness > other.fitness;
+   }
+
+   bool operator==(const Individuum& other) const
+   {
+      for(int i = 0; i < weights.size(); i++)
+      {
+         if(std::fabs(weights.at(i)-other.weights.at(i)) > 0.0000001)
+         {
+            return false;
+         }
+      }
+
+      return true;
    }
 };
 #endif // INDIVIDUUM_H

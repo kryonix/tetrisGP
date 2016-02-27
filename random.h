@@ -1,6 +1,43 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
+#include <QtGlobal>
+#include <cstdlib>
+
+class Random
+{
+private:
+
+public:
+    Random()
+    {
+       //qsrand(0);
+    }
+
+    Random(unsigned int seed)
+    {
+        qsrand(seed);
+    }
+
+    void setSeed(int seed)
+    {
+        qsrand(seed);
+    }
+
+    int rnd(int lowerbounds, int upperbounds)
+    {
+        return lowerbounds + qrand()%(upperbounds-lowerbounds+1);
+    }
+
+    double rnd(double lowerbounds, double upperbounds)
+    {
+        double rn = qrand()/((double)RAND_MAX+1);
+
+        return rn*(upperbounds-lowerbounds)+lowerbounds;
+    }
+};
+
+#if 0
 #include "MersenneTwister.h"
 #include <ctime>
 
@@ -35,5 +72,6 @@ public:
       return lowerbounds + random.rand(upperbounds-lowerbounds);
    }
 };
+#endif
 
 #endif // RANDOM_H

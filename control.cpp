@@ -4,12 +4,12 @@
 
 Control::Control(QObject *parent)
    : QThread(parent),
-     mPopulationSize(500),
+     mPopulationSize(20),
      mBestFitness(-1),
      mGeneration(0),
-     mPopulationInitSize(10000),
-     mMutationsrate(1),
-     mCrossoverrate(90),
+     mPopulationInitSize(1000),
+     mMutationsrate(5),
+     mCrossoverrate(95),
      mInd(0),
      abort(false),
      newGeneration(false),
@@ -70,13 +70,17 @@ void Control::run()
       future.waitForFinished();
 */
 
-      QFuture<void> nix = QtConcurrent::map(mPopulation, boost::bind(&Control::evaluateInd, this, _1));
+      //QFuture<void> nix = QtConcurrent::map(mPopulation, boost::bind(&Control::evaluateInd, this, _1));
+
+      QFuture<void> nix = QtConcurrent::map(mPopulation, std::bind (&Control::evaluateInd, this, std::placeholders::_1));
 
       nix.waitForFinished();
 
       mutex.unlock();
 
       recombine();
+
+      //this->sleep(10);
    }
 }
 
@@ -147,12 +151,21 @@ void Control::recombine()
       bestgenom += QString::number(mPopulation.front().weights.at(i)) + " ";
    }
 
+   int avgFitness = 0;
+
+   for(int i = 0; i < mPopulation.size(); i++)
+   {
+       avgFitness += mPopulation.at(i).fitness;
+   }
+
+   avgFitness /= mPopulation.size();
+
    qDebug()  << QTime::currentTime().toString() << ": "
              << "Generation: " << ++mGeneration
              << " Individuen: " << mPopulation.size()
              << "\t Beste Fitness: " << mPopulation.front().fitness
              << "\t Schlechteste Fitness: " << mPopulation.back().fitness
-             << "";
+             << "\t Avg Fit: " << avgFitness;
    qDebug() << bestgenom;
 
    std::vector< Individuum > newPop;
@@ -180,7 +193,7 @@ void Control::recombine()
    }
 */
 
-   for(int i = 0; i < 1; i++)
+   for(int i = 0; i < 2; i++)
    {
       newPop.push_back( Individuum(mPopulation[i]) );
       newPop.back().fitness = mPopulation[i].fitness;
@@ -203,7 +216,7 @@ void Control::recombine()
       int intervall = 0;
       //if( mRandom.rnd(0, 10) == 0 )
       {
-         intervall = mPopulation.size()-1;
+         intervall = (mPopulation.size()-1)/3;
       }
       /*else
       {

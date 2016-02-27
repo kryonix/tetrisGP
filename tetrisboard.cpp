@@ -8,7 +8,7 @@ TetrisBoard::TetrisBoard()
    mem->genNewPiece = true;
    clearBoard();
 
-   mRandom.setSeed(0);
+//   mRandom.setSeed(0);
 
    mShapes.assign(7, 0);
 

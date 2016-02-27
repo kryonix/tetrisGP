@@ -40,9 +40,10 @@ HEADERS  += \
 FORMS    += \
     TetrisWindow.ui
 
-CXXFLAGS += -O2
+#CXXFLAGS += -O3
 
-#Debug:QMAKE_CXXFLAGS += -g -gstabs -O2
-Release:QMAKE_CXXFLAGS += -O3
+Debug:QMAKE_CXXFLAGS += -g3 -gstabs -O2
+QMAKE_CXXFLAGS += -stdlib=libc++ -std=c++11
+QMAKE_LFLAGS += -stdlib=libc++
 
-INCLUDEPATH += "E:/Dateien/Programmierung/libs/boost_1_53_0"
+#INCLUDEPATH += "E:/Dateien/Programmierung/libs/boost_1_53_0"

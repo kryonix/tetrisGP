@@ -1,5 +1,7 @@
 #include "tetriski.h"
+
 #include "tetrisboard.h"
+#include <bitset>
 
 TetrisKi::TetrisKi(std::vector<double> weights)
    : mWeights(weights)
@@ -24,25 +26,72 @@ double TetrisKi::evaluateBoard(TetrisBoard *board, int lines, int landingHeight)
 {
    double score = 0;
 
-   score -= weightedHeight(board, mWeights.at(0));
-   score -= holes(board) * mWeights.at(1);
-   score -= blockades(board) * mWeights.at(2);
-   score -= columnSpace(board) * mWeights.at(3);
-   score += touchFloor(board) * mWeights.at(4);
-   score += touchWall(board) * mWeights.at(5);
-   score += touchPiece(board) * mWeights.at(6);
-   score -= rowSpace(board) * mWeights.at(7);
-   score -= blocks(board) * mWeights.at(8);
-   score += lines * mWeights.at(9);
-   score -= well(board) * mWeights.at(10);
-   score -= landingHeight+board->getCurPiece().maxX()/2 * mWeights.at(11);
+   std::bitset<TetrisBoard::BoardHeight*TetrisBoard::BoardWidth> boardSet;
 
+   for(int x = 0; x < board->BoardWidth; ++x)
+   {
+       for(int y = 0; y < board->BoardHeight; ++y)
+       {
+           boardSet[(y*TetrisBoard::BoardWidth)+x] = board->shapeAt(x,y) == NoShape ? true:false;
+       }
+   }
+
+   std::vector<int> heights;
+   heights.resize(TetrisBoard::BoardWidth);
+
+   for(int i = 0; i < TetrisBoard::BoardWidth; i++)
+   {
+      int max = 0;
+      heights[i] = 0;
+      for(int j = 0; j < TetrisBoard::BoardHeight; j++)
+      {
+         if(!boardSet.test((TetrisBoard::BoardHeight-j-1)*TetrisBoard::BoardWidth+i))
+         {
+            if(max < TetrisBoard::BoardHeight-j)
+            {
+               max = TetrisBoard::BoardHeight-j;
+               heights[i] = max;
+            }
+         }
+      }
+   }
+   int aggregateHeight = heights[heights.size()-1];
+   int bumpiness = 0;
+
+   for(int i = 0; i < heights.size()-2; ++i)
+   {
+       bumpiness += std::abs(heights[i]-heights[i+1]);
+       aggregateHeight += heights[i];
+   }
+
+   score = (-aggregateHeight * mWeights.at(10)) - (bumpiness * mWeights.at(11));
+
+#if 1
+   score -= weightedHeight(&boardSet, mWeights.at(0));
+
+   //score -= holesBlockades(&boardSet, mWeights.at(1), mWeights.at(2));
+
+   score -= holesBlockadesColumn(&boardSet, mWeights.at(1), mWeights.at(2), mWeights.at(3));
+
+   //score -= holes(&boardSet) * mWeights.at(1);
+   //score -= blockades(&boardSet) * mWeights.at(2);
+   //score -= columnSpace(&boardSet) * mWeights.at(3);
+
+   score += touchFloor(&boardSet) * mWeights.at(4);
+   score += touchWall(&boardSet) * mWeights.at(5);
+   score += touchPiece(&boardSet) * mWeights.at(6);
+   score -= rowSpace(&boardSet) * mWeights.at(7);
+   score -= blocks(&boardSet) * mWeights.at(8);
+   score += lines * mWeights.at(9);
+   score -= well(&boardSet) * mWeights.at(10);
+   score -= landingHeight+board->getCurPiece().maxX()/2 * mWeights.at(11);
+#endif
    return score;
 }
 
 std::pair<int, int> TetrisKi::onePiece(TetrisBoard *board)
 {
-   int rot = 4;
+   int rot = 3;
    if(board->getCurPiece().shape() == SquareShape) rot = 0;
    if(board->getCurPiece().shape() == ZShape) rot = 1;
    if(board->getCurPiece().shape() == SShape) rot = 1;
